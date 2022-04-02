@@ -9,8 +9,8 @@ description = "Know your time from a list of selected time zones"
 [dependencies]
 anyhow = "1.0.40"
 chrono = "0.4"
-chrono-tz = "0.5"
-clap = "3.0.0-beta.2"
+chrono-tz = "0.6.1"
+clap = "=3.0.14"
 colored = "2.0.0"
 confy = "0.4.0"
 dateparser = { path = "../dateparser" }

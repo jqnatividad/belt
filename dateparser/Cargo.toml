@@ -1,23 +1,23 @@
 [package]
-name = "dateparser"
-version = "0.1.6"
-authors = ["Rollie Ma <rollie@rollie.dev>"]
+name = "qsv-dateparser"
+version = "0.2.0"
+authors = ["Joel Natividad <joel@datHere.com>"]
 description = "Parse dates in string formats that are commonly used"
 readme = "README.md"
-homepage = "https://github.com/waltzofpearls/belt/tree/main/dateparser"
-repository = "https://github.com/waltzofpearls/belt/tree/main/dateparser"
+homepage = "https://github.com/jqnatividad/belt/tree/main/dateparser"
+repository = "https://github.com/jqnatividad/belt/tree/main/dateparser"
 keywords = ["date", "time", "datetime", "parser", "parse"]
 license = "MIT"
-edition = "2018"
+edition = "2021"
 
 [dependencies]
-anyhow = "1.0.40"
+anyhow = "1.0"
 chrono = "0.4"
-lazy_static = "1.4.0"
-regex = "1.5.4"
+lazy_static = "1.4"
+regex = { version = "1.5", default-features = false, features = ["std", "perf"] }
 
 [dev-dependencies]
-chrono-tz = "0.5.3"
+chrono-tz = "0.6"
 criterion = { version = "0.3.4", features = ["html_reports"] }
 
 [[bench]]

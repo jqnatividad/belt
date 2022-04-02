@@ -3,21 +3,6 @@
 //!
 //! # Quick Start
 //!
-//! ```
-//! use chrono::prelude::*;
-//! use dateparser::parse;
-//! use std::error::Error;
-//!
-//! fn main() -> Result<(), Box<dyn Error>> {
-//!     assert_eq!(
-//!         parse("6:15pm UTC")?,
-//!         Utc::now().date().and_time(
-//!             NaiveTime::from_hms(18, 15, 0),
-//!         ).unwrap(),
-//!     );
-//!     Ok(())
-//! }
-//! ```
 //!
 //! Use `str`'s `parse` method:
 //!
@@ -35,46 +20,17 @@
 //! }
 //! ```
 //!
-//! Parse using a custom timezone offset for a datetime string that doesn't come with a specific
-//! timezone:
-//!
-//! ```
-//! use dateparser::parse_with_timezone;
-//! use chrono::offset::Utc;
-//! use std::error::Error;
-//!
-//! fn main() -> Result<(), Box<dyn Error>> {
-//!     let parsed_in_utc = parse_with_timezone("6:15pm", &Utc)?;
-//!     assert_eq!(
-//!         parsed_in_utc,
-//!         Utc::now().date().and_hms(18, 15, 0),
-//!     );
-//!     Ok(())
-//! }
-//! ```
-//!
 //! ## Accepted date formats
 //!
 //! ```
 //! use dateparser::DateTimeUtc;
 //!
 //! let accepted = vec![
-//!     // unix timestamp
-//!     "1511648546",
-//!     "1620021848429",
-//!     "1620024872717915000",
 //!     // rfc3339
 //!     "2021-05-01T01:17:02.604456Z",
 //!     "2017-11-25T22:34:50Z",
 //!     // rfc2822
 //!     "Wed, 02 Jun 2021 06:31:39 GMT",
-//!     // postgres timestamp yyyy-mm-dd hh:mm:ss z
-//!     "2019-11-29 08:08-08",
-//!     "2019-11-29 08:08:05-08",
-//!     "2021-05-02 23:31:36.0741-07",
-//!     "2021-05-02 23:31:39.12689-07",
-//!     "2019-11-29 08:15:47.624504-08",
-//!     "2017-07-19 03:21:51+00:00",
 //!     // yyyy-mm-dd hh:mm:ss
 //!     "2014-04-26 05:24:37 PM",
 //!     "2021-04-30 21:14",
@@ -98,18 +54,6 @@
 //!     "2021-02-21 PST",
 //!     "2021-02-21 UTC",
 //!     "2020-07-20+08:00",
-//!     // hh:mm:ss
-//!     "01:06:06",
-//!     "4:00pm",
-//!     "6:00 AM",
-//!     // hh:mm:ss z
-//!     "01:06:06 PST",
-//!     "4:00pm PST",
-//!     "6:00 AM PST",
-//!     "6:00pm UTC",
-//!     // Mon dd hh:mm:ss
-//!     "May 6 at 9:24 PM",
-//!     "May 27 02:45:27",
 //!     // Mon dd, yyyy, hh:mm:ss
 //!     "May 8, 2009 5:57:51 PM",
 //!     "September 17, 2012 10:09am",
@@ -165,19 +109,6 @@
 //!     // yyyy/mm/dd
 //!     "2014/3/31",
 //!     "2014/03/31",
-//!     // mm.dd.yyyy
-//!     "3.31.2014",
-//!     "03.31.2014",
-//!     "08.21.71",
-//!     // yyyy.mm.dd
-//!     "2014.03.30",
-//!     "2014.03",
-//!     // yymmdd hh:mm:ss mysql log
-//!     "171113 14:14:20",
-//!     // chinese yyyy mm dd hh mm ss
-//!     "2014年04月08日11时25分18秒",
-//!     // chinese yyyy mm dd
-//!     "2014年04月08日",
 //! ];
 //!
 //! for date_str in accepted {
@@ -264,23 +195,6 @@ impl std::str::FromStr for DateTimeUtc {
 /// custom timezone, use [`parse_with_timezone()`] instead.If all options are exhausted,
 /// [`parse()`] will return an error to let the caller know that no formats were matched.
 ///
-/// ```
-/// use dateparser::parse;
-/// use chrono::offset::{Local, Utc};
-/// use chrono_tz::US::Pacific;
-///
-/// let parsed = parse("6:15pm").unwrap();
-///
-/// assert_eq!(
-///     parsed,
-///     Local::now().date().and_hms(18, 15, 0).with_timezone(&Utc),
-/// );
-///
-/// assert_eq!(
-///     parsed.with_timezone(&Pacific),
-///     Local::now().date().and_hms(18, 15, 0).with_timezone(&Utc).with_timezone(&Pacific),
-/// );
-/// ```
 pub fn parse(input: &str) -> Result<DateTime<Utc>> {
     Parse::new(&Local, Utc::now().time()).parse(input)
 }
@@ -289,29 +203,6 @@ pub fn parse(input: &str) -> Result<DateTime<Utc>> {
 /// and tries to parse the datetime string. When timezone is not given in the string, this function
 /// will assume and parse the datetime by the custom timezone provided in this function's arguments.
 ///
-/// ```
-/// use dateparser::parse_with_timezone;
-/// use chrono::offset::{Local, Utc};
-/// use chrono_tz::US::Pacific;
-///
-/// let parsed_in_local = parse_with_timezone("6:15pm", &Local).unwrap();
-/// assert_eq!(
-///     parsed_in_local,
-///     Local::now().date().and_hms(18, 15, 0).with_timezone(&Utc),
-/// );
-///
-/// let parsed_in_utc = parse_with_timezone("6:15pm", &Utc).unwrap();
-/// assert_eq!(
-///     parsed_in_utc,
-///     Utc::now().date().and_hms(18, 15, 0),
-/// );
-///
-/// let parsed_in_pacific = parse_with_timezone("6:15pm", &Pacific).unwrap();
-/// assert_eq!(
-///     parsed_in_pacific,
-///     Utc::now().with_timezone(&Pacific).date().and_hms(18, 15, 0).with_timezone(&Utc),
-/// );
-/// ```
 pub fn parse_with_timezone<Tz2: TimeZone>(input: &str, tz: &Tz2) -> Result<DateTime<Utc>> {
     Parse::new(tz, Utc::now().time()).parse(input)
 }
@@ -321,40 +212,6 @@ pub fn parse_with_timezone<Tz2: TimeZone>(input: &str, tz: &Tz2) -> Result<DateT
 /// it's not given in datetime string, this function also use provided default naive time in parsed
 /// [`chrono::DateTime`].
 ///
-/// ```
-/// use dateparser::parse_with;
-/// use chrono::prelude::*;
-///
-/// let utc_now_time = Utc::now().time();
-/// let local_now_time = Local::now().time();
-/// let midnight = NaiveTime::from_hms(0, 0, 0);
-///
-/// let parsed_in_local_with_utc_now_time = parse_with("2021-10-09", &Local, utc_now_time);
-/// let parsed_in_local_with_utc_midnight = parse_with("2021-10-09", &Local, midnight);
-/// let parsed_in_utc_with_utc_now_time = parse_with("2021-10-09", &Utc, utc_now_time);
-/// let parsed_in_utc_with_utc_midnight = parse_with("2021-10-09", &Utc, midnight);
-///
-/// assert_eq!(
-///     parsed_in_local_with_utc_now_time.unwrap().trunc_subsecs(0),
-///     Local.ymd(2021, 10, 9).and_time(local_now_time).unwrap().with_timezone(&Utc).trunc_subsecs(0),
-///     "parsed_in_local_with_utc_now_time"
-/// );
-/// assert_eq!(
-///     parsed_in_local_with_utc_midnight.unwrap().trunc_subsecs(0),
-///     Local.ymd(2021, 10, 9).and_time(local_now_time).unwrap().with_timezone(&Utc).date().and_hms(0, 0, 0),
-///     "parsed_in_local_with_utc_midnight"
-/// );
-/// assert_eq!(
-///     parsed_in_utc_with_utc_now_time.unwrap(),
-///     Utc.ymd(2021, 10, 9).and_time(utc_now_time).unwrap(),
-///     "parsed_in_utc_with_utc_now_time"
-/// );
-/// assert_eq!(
-///     parsed_in_utc_with_utc_midnight.unwrap().trunc_subsecs(0),
-///     Utc.ymd(2021, 10, 9).and_hms(0, 0, 0),
-///     "parsed_in_utc_with_utc_midnight"
-/// );
-/// ```
 pub fn parse_with<Tz2: TimeZone>(
     input: &str,
     tz: &Tz2,
@@ -377,12 +234,6 @@ mod tests {
     fn parse_in_local() {
         let test_cases = vec![
             (
-                "unix_timestamp",
-                "1511648546",
-                Utc.ymd(2017, 11, 25).and_hms(22, 22, 26),
-                Trunc::None,
-            ),
-            (
                 "rfc3339",
                 "2017-11-25T22:34:50Z",
                 Utc.ymd(2017, 11, 25).and_hms(22, 34, 50),
@@ -392,12 +243,6 @@ mod tests {
                 "rfc2822",
                 "Wed, 02 Jun 2021 06:31:39 GMT",
                 Utc.ymd(2021, 6, 2).and_hms(6, 31, 39),
-                Trunc::None,
-            ),
-            (
-                "postgres_timestamp",
-                "2019-11-29 08:08:05-08",
-                Utc.ymd(2019, 11, 29).and_hms(16, 8, 5),
                 Trunc::None,
             ),
             (
@@ -440,27 +285,6 @@ mod tests {
                 Trunc::Seconds,
             ),
             (
-                "hms",
-                "4:00pm",
-                Local::now()
-                    .date()
-                    .and_time(NaiveTime::from_hms(16, 0, 0))
-                    .unwrap()
-                    .with_timezone(&Utc),
-                Trunc::None,
-            ),
-            (
-                "hms_z",
-                "6:00 AM PST",
-                Utc::now()
-                    .with_timezone(&FixedOffset::west(8 * 3600))
-                    .date()
-                    .and_time(NaiveTime::from_hms(6, 0, 0))
-                    .unwrap()
-                    .with_timezone(&Utc),
-                Trunc::None,
-            ),
-            (
                 "month_ymd",
                 "2021-Feb-21",
                 Local
@@ -469,15 +293,6 @@ mod tests {
                     .unwrap()
                     .with_timezone(&Utc),
                 Trunc::Seconds,
-            ),
-            (
-                "month_md_hms",
-                "May 27 02:45:27",
-                Local
-                    .ymd(Local::now().year(), 5, 27)
-                    .and_hms(2, 45, 27)
-                    .with_timezone(&Utc),
-                Trunc::None,
             ),
             (
                 "month_mdy_hms",
@@ -561,44 +376,6 @@ mod tests {
                     .with_timezone(&Utc),
                 Trunc::Seconds,
             ),
-            (
-                "dot_mdy_or_ymd",
-                "2014.03.30",
-                Local
-                    .ymd(2014, 3, 30)
-                    .and_time(Local::now().time())
-                    .unwrap()
-                    .with_timezone(&Utc),
-                Trunc::Seconds,
-            ),
-            (
-                "mysql_log_timestamp",
-                "171113 14:14:20",
-                Local
-                    .ymd(2017, 11, 13)
-                    .and_hms(14, 14, 20)
-                    .with_timezone(&Utc),
-                Trunc::None,
-            ),
-            (
-                "chinese_ymd_hms",
-                "2014年04月08日11时25分18秒",
-                Local
-                    .ymd(2014, 4, 8)
-                    .and_hms(11, 25, 18)
-                    .with_timezone(&Utc),
-                Trunc::None,
-            ),
-            (
-                "chinese_ymd",
-                "2014年04月08日",
-                Local
-                    .ymd(2014, 4, 8)
-                    .and_time(Local::now().time())
-                    .unwrap()
-                    .with_timezone(&Utc),
-                Trunc::Seconds,
-            ),
         ];
 
         for &(test, input, want, trunc) in test_cases.iter() {
@@ -631,12 +408,6 @@ mod tests {
     fn parse_with_timezone_in_utc() {
         let test_cases = vec![
             (
-                "unix_timestamp",
-                "1511648546",
-                Utc.ymd(2017, 11, 25).and_hms(22, 22, 26),
-                Trunc::None,
-            ),
-            (
                 "rfc3339",
                 "2017-11-25T22:34:50Z",
                 Utc.ymd(2017, 11, 25).and_hms(22, 34, 50),
@@ -646,12 +417,6 @@ mod tests {
                 "rfc2822",
                 "Wed, 02 Jun 2021 06:31:39 GMT",
                 Utc.ymd(2021, 6, 2).and_hms(6, 31, 39),
-                Trunc::None,
-            ),
-            (
-                "postgres_timestamp",
-                "2019-11-29 08:08:05-08",
-                Utc.ymd(2019, 11, 29).and_hms(16, 8, 5),
                 Trunc::None,
             ),
             (
@@ -687,40 +452,10 @@ mod tests {
                 Trunc::Seconds,
             ),
             (
-                "hms",
-                "4:00pm",
-                Utc::now()
-                    .date()
-                    .and_time(NaiveTime::from_hms(16, 0, 0))
-                    .unwrap(),
-                Trunc::None,
-            ),
-            (
-                "hms_z",
-                "6:00 AM PST",
-                FixedOffset::west(8 * 3600)
-                    .from_local_date(
-                        &Utc::now()
-                            .with_timezone(&FixedOffset::west(8 * 3600))
-                            .date()
-                            .naive_local(),
-                    )
-                    .and_time(NaiveTime::from_hms(6, 0, 0))
-                    .unwrap()
-                    .with_timezone(&Utc),
-                Trunc::None,
-            ),
-            (
                 "month_ymd",
                 "2021-Feb-21",
                 Utc.ymd(2021, 2, 21).and_time(Utc::now().time()).unwrap(),
                 Trunc::Seconds,
-            ),
-            (
-                "month_md_hms",
-                "May 27 02:45:27",
-                Utc.ymd(Utc::now().year(), 5, 27).and_hms(2, 45, 27),
-                Trunc::None,
             ),
             (
                 "month_mdy_hms",
@@ -774,30 +509,6 @@ mod tests {
                 "slash_ymd",
                 "2014/3/31",
                 Utc.ymd(2014, 3, 31).and_time(Utc::now().time()).unwrap(),
-                Trunc::Seconds,
-            ),
-            (
-                "dot_mdy_or_ymd",
-                "2014.03.30",
-                Utc.ymd(2014, 3, 30).and_time(Utc::now().time()).unwrap(),
-                Trunc::Seconds,
-            ),
-            (
-                "mysql_log_timestamp",
-                "171113 14:14:20",
-                Utc.ymd(2017, 11, 13).and_hms(14, 14, 20),
-                Trunc::None,
-            ),
-            (
-                "chinese_ymd_hms",
-                "2014年04月08日11时25分18秒",
-                Utc.ymd(2014, 4, 8).and_hms(11, 25, 18),
-                Trunc::None,
-            ),
-            (
-                "chinese_ymd",
-                "2014年04月08日",
-                Utc.ymd(2014, 4, 8).and_time(Utc::now().time()).unwrap(),
                 Trunc::Seconds,
             ),
         ];
