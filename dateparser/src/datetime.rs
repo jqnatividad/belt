@@ -22,6 +22,7 @@ where
 
     /// This method tries to parse the input datetime string with a list of accepted formats. See
     /// more exmaples from [`Parse`], [`crate::parse()`] and [`crate::parse_with_timezone()`].
+    #[inline]
     pub fn parse(&self, input: &str) -> Result<DateTime<Utc>> {
         self.rfc2822(input)
             .or_else(|| self.ymd_family(input))
@@ -33,6 +34,7 @@ where
             .unwrap_or_else(|| Err(anyhow!("{} did not match any formats.", input)))
     }
 
+    #[inline]
     fn ymd_family(&self, input: &str) -> Option<Result<DateTime<Utc>>> {
         lazy_static! {
             static ref RE: Regex = Regex::new(r"^[0-9]{4}-[0-9]{2}").unwrap();
@@ -48,6 +50,7 @@ where
     }
 
 
+    #[inline]
     fn month_mdy_family(&self, input: &str) -> Option<Result<DateTime<Utc>>> {
         lazy_static! {
             static ref RE: Regex = Regex::new(r"^[a-zA-Z]{3,9}\.?\s+[0-9]{1,2}").unwrap();
@@ -60,6 +63,7 @@ where
             .or_else(|| self.month_mdy(input))
     }
 
+    #[inline]
     fn month_dmy_family(&self, input: &str) -> Option<Result<DateTime<Utc>>> {
         lazy_static! {
             static ref RE: Regex = Regex::new(r"^[0-9]{1,2}\s+[a-zA-Z]{3,9}").unwrap();
@@ -70,6 +74,7 @@ where
         self.month_dmy_hms(input).or_else(|| self.month_dmy(input))
     }
 
+    #[inline]
     fn slash_mdy_family(&self, input: &str) -> Option<Result<DateTime<Utc>>> {
         lazy_static! {
             static ref RE: Regex = Regex::new(r"^[0-9]{1,2}/[0-9]{1,2}").unwrap();
@@ -80,6 +85,7 @@ where
         self.slash_mdy_hms(input).or_else(|| self.slash_mdy(input))
     }
 
+    #[inline]
     fn slash_ymd_family(&self, input: &str) -> Option<Result<DateTime<Utc>>> {
         lazy_static! {
             static ref RE: Regex = Regex::new(r"^[0-9]{4}/[0-9]{1,2}").unwrap();
@@ -93,6 +99,7 @@ where
     // rfc3339
     // - 2021-05-01T01:17:02.604456Z
     // - 2017-11-25T22:34:50Z
+    #[inline]
     fn rfc3339(&self, input: &str) -> Option<Result<DateTime<Utc>>> {
         DateTime::parse_from_rfc3339(input)
             .ok()
@@ -102,6 +109,7 @@ where
 
     // rfc2822
     // - Wed, 02 Jun 2021 06:31:39 GMT
+    #[inline]
     fn rfc2822(&self, input: &str) -> Option<Result<DateTime<Utc>>> {
         DateTime::parse_from_rfc2822(input)
             .ok()
@@ -117,6 +125,7 @@ where
     // - 2014-04-26 17:24:37.123
     // - 2014-04-26 17:24:37.3186369
     // - 2012-08-03 18:31:59.257000000
+    #[inline]
     fn ymd_hms(&self, input: &str) -> Option<Result<DateTime<Utc>>> {
         lazy_static! {
             static ref RE: Regex = Regex::new(
@@ -148,6 +157,7 @@ where
     // - 2014-04-26 13:13:44 +09:00
     // - 2012-08-03 18:31:59.257000000 +0000
     // - 2015-09-30 18:48:56.35272715 UTC
+    #[inline]
     fn ymd_hms_z(&self, input: &str) -> Option<Result<DateTime<Utc>>> {
         lazy_static! {
             static ref RE: Regex = Regex::new(
@@ -178,6 +188,7 @@ where
 
     // yyyy-mm-dd
     // - 2021-02-21
+    #[inline]
     fn ymd(&self, input: &str) -> Option<Result<DateTime<Utc>>> {
         lazy_static! {
             static ref RE: Regex = Regex::new(r"^[0-9]{4}-[0-9]{2}-[0-9]{2}$").unwrap();
@@ -202,6 +213,7 @@ where
     // - 2021-02-21 PST
     // - 2021-02-21 UTC
     // - 2020-07-20+08:00 (yyyy-mm-dd-07:00)
+    #[inline]
     fn ymd_z(&self, input: &str) -> Option<Result<DateTime<Utc>>> {
         lazy_static! {
             static ref RE: Regex =
@@ -235,6 +247,7 @@ where
 
     // yyyy-mon-dd
     // - 2021-Feb-21
+    #[inline]
     fn month_ymd(&self, input: &str) -> Option<Result<DateTime<Utc>>> {
         lazy_static! {
             static ref RE: Regex = Regex::new(r"^[0-9]{4}-[a-zA-Z]{3,9}-[0-9]{2}$").unwrap();
@@ -260,6 +273,7 @@ where
     // - May 8, 2009 5:57:51 PM
     // - September 17, 2012 10:09am
     // - September 17, 2012, 10:10:09
+    #[inline]
     fn month_mdy_hms(&self, input: &str) -> Option<Result<DateTime<Utc>>> {
         lazy_static! {
             static ref RE: Regex = Regex::new(
@@ -286,6 +300,7 @@ where
     // - May 02, 2021 15:51 UTC
     // - May 26, 2021, 12:49 AM PDT
     // - September 17, 2012 at 10:09am PST
+    #[inline]
     fn month_mdy_hms_z(&self, input: &str) -> Option<Result<DateTime<Utc>>> {
         lazy_static! {
             static ref RE: Regex = Regex::new(
@@ -325,6 +340,7 @@ where
     // - oct. 7, 1970
     // - oct. 7, 70
     // - October 7, 1970
+    #[inline]
     fn month_mdy(&self, input: &str) -> Option<Result<DateTime<Utc>>> {
         lazy_static! {
             static ref RE: Regex =
@@ -352,6 +368,7 @@ where
     // - 12 Feb 2006, 19:17
     // - 12 Feb 2006 19:17
     // - 14 May 2019 19:11:40.164
+    #[inline]
     fn month_dmy_hms(&self, input: &str) -> Option<Result<DateTime<Utc>>> {
         lazy_static! {
             static ref RE: Regex = Regex::new(
@@ -379,6 +396,7 @@ where
     // - 7 oct 1970
     // - 03 February 2013
     // - 1 July 2013
+    #[inline]
     fn month_dmy(&self, input: &str) -> Option<Result<DateTime<Utc>>> {
         lazy_static! {
             static ref RE: Regex =
@@ -414,6 +432,7 @@ where
     // - 4/02/2014 03:00:51
     // - 03/19/2012 10:11:59
     // - 03/19/2012 10:11:59.3186369
+    #[inline]
     fn slash_mdy_hms(&self, input: &str) -> Option<Result<DateTime<Utc>>> {
         lazy_static! {
             static ref RE: Regex = Regex::new(
@@ -446,6 +465,7 @@ where
     // - 03/31/2014
     // - 08/21/71
     // - 8/1/71
+    #[inline]
     fn slash_mdy(&self, input: &str) -> Option<Result<DateTime<Utc>>> {
         lazy_static! {
             static ref RE: Regex = Regex::new(r"^[0-9]{1,2}/[0-9]{1,2}/[0-9]{2,4}$").unwrap();
@@ -474,6 +494,7 @@ where
     // - 2014/4/02 03:00:51
     // - 2012/03/19 10:11:59
     // - 2012/03/19 10:11:59.3186369
+    #[inline]
     fn slash_ymd_hms(&self, input: &str) -> Option<Result<DateTime<Utc>>> {
         lazy_static! {
             static ref RE: Regex = Regex::new(
@@ -499,6 +520,7 @@ where
     // yyyy/mm/dd
     // - 2014/3/31
     // - 2014/03/31
+    #[inline]
     fn slash_ymd(&self, input: &str) -> Option<Result<DateTime<Utc>>> {
         lazy_static! {
             static ref RE: Regex = Regex::new(r"^[0-9]{4}/[0-9]{1,2}/[0-9]{1,2}$").unwrap();

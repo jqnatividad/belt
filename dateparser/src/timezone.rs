@@ -15,6 +15,7 @@ pub fn parse(s: &str) -> Result<FixedOffset> {
     Ok(FixedOffset::east(offset))
 }
 
+#[inline]
 fn parse_offset_2822(s: &str) -> Result<i32> {
     // tries to parse legacy time zone names
     let upto = s
@@ -46,6 +47,7 @@ fn parse_offset_2822(s: &str) -> Result<i32> {
     }
 }
 
+#[inline]
 fn parse_offset_internal<F>(
     mut s: &str,
     mut consume_colon: F,
@@ -104,6 +106,7 @@ where
 
 /// Returns true when two slices are equal case-insensitively (in ASCII).
 /// Assumes that the `pattern` is already converted to lower case.
+#[inline]
 fn equals(s: &str, pattern: &str) -> bool {
     let mut xs = s.as_bytes().iter().map(|&c| match c {
         b'A'..=b'Z' => c + 32,
@@ -121,6 +124,7 @@ fn equals(s: &str, pattern: &str) -> bool {
 }
 
 /// Consumes any number (including zero) of colon or spaces.
+#[inline]
 fn colon_or_space(s: &str) -> Result<&str> {
     Ok(s.trim_start_matches(|c: char| c == ':' || c.is_whitespace()))
 }
