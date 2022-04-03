@@ -1,9 +1,14 @@
 use crate::timezone;
 use anyhow::{anyhow, Result};
 use chrono::prelude::*;
-use lazy_static::lazy_static;
 use regex::Regex;
 
+macro_rules! regex {
+    ($re:literal $(,)?) => {{
+        static RE: once_cell::sync::OnceCell<regex::Regex> = once_cell::sync::OnceCell::new();
+        RE.get_or_init(|| regex::Regex::new($re).unwrap())
+    }};
+}
 /// Parse struct has methods implemented parsers for accepted formats.
 pub struct Parse<'z, Tz2> {
     tz: &'z Tz2,
@@ -36,10 +41,11 @@ where
 
     #[inline]
     fn ymd_family(&self, input: &str) -> Option<Result<DateTime<Utc>>> {
-        lazy_static! {
-            static ref RE: Regex = Regex::new(r"^[0-9]{4}-[0-9]{2}").unwrap();
-        }
-        if !RE.is_match(input) {
+        let re: &'static Regex = regex! {
+            r"^[0-9]{4}-[0-9]{2}"
+        };
+
+        if !re.is_match(input) {
             return None;
         }
         self.rfc3339(input)
@@ -49,13 +55,13 @@ where
             .or_else(|| self.ymd_z(input))
     }
 
-
     #[inline]
     fn month_mdy_family(&self, input: &str) -> Option<Result<DateTime<Utc>>> {
-        lazy_static! {
-            static ref RE: Regex = Regex::new(r"^[a-zA-Z]{3,9}\.?\s+[0-9]{1,2}").unwrap();
-        }
-        if !RE.is_match(input) {
+        let re: &'static Regex = regex! {
+            r"^[a-zA-Z]{3,9}\.?\s+[0-9]{1,2}"
+        };
+
+        if !re.is_match(input) {
             return None;
         }
         self.month_mdy_hms(input)
@@ -65,10 +71,10 @@ where
 
     #[inline]
     fn month_dmy_family(&self, input: &str) -> Option<Result<DateTime<Utc>>> {
-        lazy_static! {
-            static ref RE: Regex = Regex::new(r"^[0-9]{1,2}\s+[a-zA-Z]{3,9}").unwrap();
-        }
-        if !RE.is_match(input) {
+        let re: &'static Regex = regex! {r"^[0-9]{1,2}\s+[a-zA-Z]{3,9}"
+        };
+
+        if !re.is_match(input) {
             return None;
         }
         self.month_dmy_hms(input).or_else(|| self.month_dmy(input))
@@ -76,10 +82,9 @@ where
 
     #[inline]
     fn slash_mdy_family(&self, input: &str) -> Option<Result<DateTime<Utc>>> {
-        lazy_static! {
-            static ref RE: Regex = Regex::new(r"^[0-9]{1,2}/[0-9]{1,2}").unwrap();
-        }
-        if !RE.is_match(input) {
+        let re: &'static Regex = regex! {r"^[0-9]{1,2}/[0-9]{1,2}"
+        };
+        if !re.is_match(input) {
             return None;
         }
         self.slash_mdy_hms(input).or_else(|| self.slash_mdy(input))
@@ -87,10 +92,8 @@ where
 
     #[inline]
     fn slash_ymd_family(&self, input: &str) -> Option<Result<DateTime<Utc>>> {
-        lazy_static! {
-            static ref RE: Regex = Regex::new(r"^[0-9]{4}/[0-9]{1,2}").unwrap();
-        }
-        if !RE.is_match(input) {
+        let re: &'static Regex = regex! {r"^[0-9]{4}/[0-9]{1,2}"};
+        if !re.is_match(input) {
             return None;
         }
         self.slash_ymd_hms(input).or_else(|| self.slash_ymd(input))
@@ -127,13 +130,11 @@ where
     // - 2012-08-03 18:31:59.257000000
     #[inline]
     fn ymd_hms(&self, input: &str) -> Option<Result<DateTime<Utc>>> {
-        lazy_static! {
-            static ref RE: Regex = Regex::new(
-                r"^[0-9]{4}-[0-9]{2}-[0-9]{2}\s+[0-9]{2}:[0-9]{2}(:[0-9]{2})?(\.[0-9]{1,9})?\s*(am|pm|AM|PM)?$",
-            )
-            .unwrap();
-        }
-        if !RE.is_match(input) {
+        let re: &'static Regex = regex! {
+                r"^[0-9]{4}-[0-9]{2}-[0-9]{2}\s+[0-9]{2}:[0-9]{2}(:[0-9]{2})?(\.[0-9]{1,9})?\s*(am|pm|AM|PM)?$"
+
+        };
+        if !re.is_match(input) {
             return None;
         }
 
@@ -159,16 +160,14 @@ where
     // - 2015-09-30 18:48:56.35272715 UTC
     #[inline]
     fn ymd_hms_z(&self, input: &str) -> Option<Result<DateTime<Utc>>> {
-        lazy_static! {
-            static ref RE: Regex = Regex::new(
-                r"^[0-9]{4}-[0-9]{2}-[0-9]{2}\s+[0-9]{2}:[0-9]{2}(:[0-9]{2})?(\.[0-9]{1,9})?(?P<tz>\s*[+-:a-zA-Z0-9]{3,6})$",
-            ).unwrap();
-        }
+        let re: &'static Regex = regex! {
+                r"^[0-9]{4}-[0-9]{2}-[0-9]{2}\s+[0-9]{2}:[0-9]{2}(:[0-9]{2})?(\.[0-9]{1,9})?(?P<tz>\s*[+-:a-zA-Z0-9]{3,6})$"
+        };
 
-        if !RE.is_match(input) {
+        if !re.is_match(input) {
             return None;
         }
-        if let Some(caps) = RE.captures(input) {
+        if let Some(caps) = re.captures(input) {
             if let Some(matched_tz) = caps.name("tz") {
                 let parse_from_str = NaiveDateTime::parse_from_str;
                 return match timezone::parse(matched_tz.as_str().trim()) {
@@ -190,11 +189,10 @@ where
     // - 2021-02-21
     #[inline]
     fn ymd(&self, input: &str) -> Option<Result<DateTime<Utc>>> {
-        lazy_static! {
-            static ref RE: Regex = Regex::new(r"^[0-9]{4}-[0-9]{2}-[0-9]{2}$").unwrap();
-        }
+        let re: &'static Regex = regex! {r"^[0-9]{4}-[0-9]{2}-[0-9]{2}$"
+        };
 
-        if !RE.is_match(input) {
+        if !re.is_match(input) {
             return None;
         }
         let now = Utc::now()
@@ -215,15 +213,13 @@ where
     // - 2020-07-20+08:00 (yyyy-mm-dd-07:00)
     #[inline]
     fn ymd_z(&self, input: &str) -> Option<Result<DateTime<Utc>>> {
-        lazy_static! {
-            static ref RE: Regex =
-                Regex::new(r"^[0-9]{4}-[0-9]{2}-[0-9]{2}(?P<tz>\s*[+-:a-zA-Z0-9]{3,6})$").unwrap();
-        }
-        if !RE.is_match(input) {
+        let re: &'static Regex = regex! {r"^[0-9]{4}-[0-9]{2}-[0-9]{2}(?P<tz>\s*[+-:a-zA-Z0-9]{3,6})$"
+        };
+        if !re.is_match(input) {
             return None;
         }
 
-        if let Some(caps) = RE.captures(input) {
+        if let Some(caps) = re.captures(input) {
             if let Some(matched_tz) = caps.name("tz") {
                 return match timezone::parse(matched_tz.as_str().trim()) {
                     Ok(offset) => {
@@ -249,10 +245,9 @@ where
     // - 2021-Feb-21
     #[inline]
     fn month_ymd(&self, input: &str) -> Option<Result<DateTime<Utc>>> {
-        lazy_static! {
-            static ref RE: Regex = Regex::new(r"^[0-9]{4}-[a-zA-Z]{3,9}-[0-9]{2}$").unwrap();
-        }
-        if !RE.is_match(input) {
+        let re: &'static Regex = regex! {r"^[0-9]{4}-[a-zA-Z]{3,9}-[0-9]{2}$"
+        };
+        if !re.is_match(input) {
             return None;
         }
 
@@ -275,12 +270,10 @@ where
     // - September 17, 2012, 10:10:09
     #[inline]
     fn month_mdy_hms(&self, input: &str) -> Option<Result<DateTime<Utc>>> {
-        lazy_static! {
-            static ref RE: Regex = Regex::new(
-                r"^[a-zA-Z]{3,9}\.?\s+[0-9]{1,2},\s+[0-9]{2,4},?\s+[0-9]{1,2}:[0-9]{2}(:[0-9]{2})?\s*(am|pm|AM|PM)?$",
-            ).unwrap();
-        }
-        if !RE.is_match(input) {
+        let re: &'static Regex = regex! {
+                r"^[a-zA-Z]{3,9}\.?\s+[0-9]{1,2},\s+[0-9]{2,4},?\s+[0-9]{1,2}:[0-9]{2}(:[0-9]{2})?\s*(am|pm|AM|PM)?$"
+        };
+        if !re.is_match(input) {
             return None;
         }
 
@@ -302,16 +295,14 @@ where
     // - September 17, 2012 at 10:09am PST
     #[inline]
     fn month_mdy_hms_z(&self, input: &str) -> Option<Result<DateTime<Utc>>> {
-        lazy_static! {
-            static ref RE: Regex = Regex::new(
+        let re: &'static Regex = regex! {
                 r"^[a-zA-Z]{3,9}\s+[0-9]{1,2},?\s+[0-9]{4}\s*,?(at)?\s+[0-9]{2}:[0-9]{2}(:[0-9]{2})?\s*(am|pm|AM|PM)?(?P<tz>\s+[+-:a-zA-Z0-9]{3,6})$",
-            ).unwrap();
-        }
-        if !RE.is_match(input) {
+        };
+        if !re.is_match(input) {
             return None;
         }
 
-        if let Some(caps) = RE.captures(input) {
+        if let Some(caps) = re.captures(input) {
             if let Some(matched_tz) = caps.name("tz") {
                 let parse_from_str = NaiveDateTime::parse_from_str;
                 return match timezone::parse(matched_tz.as_str().trim()) {
@@ -342,11 +333,9 @@ where
     // - October 7, 1970
     #[inline]
     fn month_mdy(&self, input: &str) -> Option<Result<DateTime<Utc>>> {
-        lazy_static! {
-            static ref RE: Regex =
-                Regex::new(r"^[a-zA-Z]{3,9}\.?\s+[0-9]{1,2},\s+[0-9]{2,4}$").unwrap();
-        }
-        if !RE.is_match(input) {
+        let re: &'static Regex = regex! {r"^[a-zA-Z]{3,9}\.?\s+[0-9]{1,2},\s+[0-9]{2,4}$"
+        };
+        if !re.is_match(input) {
             return None;
         }
 
@@ -370,12 +359,10 @@ where
     // - 14 May 2019 19:11:40.164
     #[inline]
     fn month_dmy_hms(&self, input: &str) -> Option<Result<DateTime<Utc>>> {
-        lazy_static! {
-            static ref RE: Regex = Regex::new(
-                r"^[0-9]{1,2}\s+[a-zA-Z]{3,9}\s+[0-9]{2,4},?\s+[0-9]{1,2}:[0-9]{2}(:[0-9]{2})?(\.[0-9]{1,9})?$",
-            ).unwrap();
-        }
-        if !RE.is_match(input) {
+        let re: &'static Regex = regex! {
+                r"^[0-9]{1,2}\s+[a-zA-Z]{3,9}\s+[0-9]{2,4},?\s+[0-9]{1,2}:[0-9]{2}(:[0-9]{2})?(\.[0-9]{1,9})?$"
+        };
+        if !re.is_match(input) {
             return None;
         }
 
@@ -398,11 +385,9 @@ where
     // - 1 July 2013
     #[inline]
     fn month_dmy(&self, input: &str) -> Option<Result<DateTime<Utc>>> {
-        lazy_static! {
-            static ref RE: Regex =
-                Regex::new(r"^[0-9]{1,2}\s+[a-zA-Z]{3,9}\s+[0-9]{2,4}$").unwrap();
-        }
-        if !RE.is_match(input) {
+        let re: &'static Regex = regex! {r"^[0-9]{1,2}\s+[a-zA-Z]{3,9}\s+[0-9]{2,4}$"
+        };
+        if !re.is_match(input) {
             return None;
         }
 
@@ -434,13 +419,10 @@ where
     // - 03/19/2012 10:11:59.3186369
     #[inline]
     fn slash_mdy_hms(&self, input: &str) -> Option<Result<DateTime<Utc>>> {
-        lazy_static! {
-            static ref RE: Regex = Regex::new(
+        let re: &'static Regex = regex! {
                 r"^[0-9]{1,2}/[0-9]{1,2}/[0-9]{2,4}\s+[0-9]{1,2}:[0-9]{2}(:[0-9]{2})?(\.[0-9]{1,9})?\s*(am|pm|AM|PM)?$"
-            )
-            .unwrap();
-        }
-        if !RE.is_match(input) {
+        };
+        if !re.is_match(input) {
             return None;
         }
 
@@ -467,10 +449,9 @@ where
     // - 8/1/71
     #[inline]
     fn slash_mdy(&self, input: &str) -> Option<Result<DateTime<Utc>>> {
-        lazy_static! {
-            static ref RE: Regex = Regex::new(r"^[0-9]{1,2}/[0-9]{1,2}/[0-9]{2,4}$").unwrap();
-        }
-        if !RE.is_match(input) {
+        let re: &'static Regex = regex! {r"^[0-9]{1,2}/[0-9]{1,2}/[0-9]{2,4}$"
+        };
+        if !re.is_match(input) {
             return None;
         }
 
@@ -496,13 +477,10 @@ where
     // - 2012/03/19 10:11:59.3186369
     #[inline]
     fn slash_ymd_hms(&self, input: &str) -> Option<Result<DateTime<Utc>>> {
-        lazy_static! {
-            static ref RE: Regex = Regex::new(
+        let re: &'static Regex = regex! {
                 r"^[0-9]{4}/[0-9]{1,2}/[0-9]{1,2}\s+[0-9]{1,2}:[0-9]{2}(:[0-9]{2})?(\.[0-9]{1,9})?\s*(am|pm|AM|PM)?$"
-            )
-            .unwrap();
-        }
-        if !RE.is_match(input) {
+        };
+        if !re.is_match(input) {
             return None;
         }
 
@@ -522,10 +500,9 @@ where
     // - 2014/03/31
     #[inline]
     fn slash_ymd(&self, input: &str) -> Option<Result<DateTime<Utc>>> {
-        lazy_static! {
-            static ref RE: Regex = Regex::new(r"^[0-9]{4}/[0-9]{1,2}/[0-9]{1,2}$").unwrap();
-        }
-        if !RE.is_match(input) {
+        let re: &'static Regex = regex! {r"^[0-9]{4}/[0-9]{1,2}/[0-9]{1,2}$"
+        };
+        if !re.is_match(input) {
             return None;
         }
 
@@ -540,8 +517,6 @@ where
             .map(|at_tz| at_tz.with_timezone(&Utc))
             .map(Ok)
     }
-
-
 }
 
 #[cfg(test)]
@@ -1104,7 +1079,4 @@ mod tests {
         }
         assert!(parse.slash_ymd("not-date-time").is_none());
     }
-
-
-
 }
