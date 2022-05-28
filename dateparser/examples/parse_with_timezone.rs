@@ -1,6 +1,6 @@
 use chrono::offset::{Local, Utc};
 use chrono_tz::US::Pacific;
-use dateparser::parse_with_timezone;
+use qsv_dateparser::parse_with_timezone;
 use std::error::Error;
 
 fn main() -> Result<(), Box<dyn Error>> {

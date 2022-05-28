@@ -2,7 +2,7 @@ use chrono::{
     naive::NaiveTime,
     offset::{Local, Utc},
 };
-use dateparser::parse_with;
+use qsv_dateparser::parse_with;
 use std::error::Error;
 
 fn main() -> Result<(), Box<dyn Error>> {

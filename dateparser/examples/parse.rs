@@ -1,4 +1,4 @@
-use dateparser::parse;
+use qsv_dateparser::parse;
 use std::error::Error;
 
 fn main() -> Result<(), Box<dyn Error>> {

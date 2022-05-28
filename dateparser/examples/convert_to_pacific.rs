@@ -1,5 +1,5 @@
 use chrono_tz::US::Pacific;
-use dateparser::DateTimeUtc;
+use qsv_dateparser::DateTimeUtc;
 use std::error::Error;
 
 fn main() -> Result<(), Box<dyn Error>> {
