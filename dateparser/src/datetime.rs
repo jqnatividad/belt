@@ -1100,8 +1100,6 @@ mod tests {
     fn slash_dmy() {
         let mut parse = Parse::new(&Utc, Utc::now().time());
 
-        parse.prefer_dmy(true);
-
         let test_cases = vec![
             (
                 "31/3/2014",
