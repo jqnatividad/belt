@@ -11,3 +11,5 @@
 /target
 
 *.swp
+Cargo.lock
+dateparser/.vscode/launch.json
