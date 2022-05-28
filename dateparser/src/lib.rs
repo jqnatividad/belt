@@ -166,6 +166,7 @@ pub mod timezone;
 use crate::datetime::Parse;
 use anyhow::{Error, Result};
 use chrono::prelude::*;
+use once_cell::sync::OnceCell;
 
 /// DateTimeUtc is an alias for `chrono`'s `DateTime<UTC>`. It implements `std::str::FromStr`'s
 /// `from_str` method, and it makes `str`'s `parse` method to understand the accepted date formats
@@ -191,13 +192,21 @@ impl std::str::FromStr for DateTimeUtc {
     }
 }
 
+static MIDNIGHT: OnceCell<chrono::NaiveTime> = OnceCell::new();
+
 /// This function tries to recognize the input datetime string with a list of accepted formats.
 /// When timezone is not provided, this function assumes it's a [`chrono::Local`] datetime. For
 /// custom timezone, use [`parse_with_timezone()`] instead.If all options are exhausted,
 /// [`parse()`] will return an error to let the caller know that no formats were matched.
-///
+#[inline]
 pub fn parse(input: &str) -> Result<DateTime<Utc>> {
     Parse::new(&Local, Utc::now().time()).parse(input)
+}
+
+#[inline]
+pub fn parse_with_preference(input: &str, dmy_preference: bool) -> Result<DateTime<Utc>> {
+    let midnight = MIDNIGHT.get_or_init(|| NaiveTime::from_hms(0, 0, 0));
+    Parse::new(&Utc, *midnight).prefer_dmy(dmy_preference).parse(input)
 }
 
 /// Similar to [`parse()`], this function takes a datetime string and a custom [`chrono::TimeZone`],
