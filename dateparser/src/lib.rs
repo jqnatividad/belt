@@ -8,7 +8,7 @@
 //!
 //! ```
 //! use chrono::prelude::*;
-//! use dateparser::DateTimeUtc;
+//! use qsv_dateparser::DateTimeUtc;
 //! use std::error::Error;
 //!
 //! fn main() -> Result<(), Box<dyn Error>> {
@@ -23,7 +23,7 @@
 //! ## Accepted date formats
 //!
 //! ```
-//! use dateparser::DateTimeUtc;
+//! use qsv_dateparser::DateTimeUtc;
 //!
 //! let accepted = vec![
 //!     // rfc3339
@@ -121,7 +121,7 @@
 ///
 /// ```
 /// use chrono::prelude::*;
-/// use dateparser::datetime::Parse;
+/// use qsv_dateparser::datetime::Parse;
 /// use std::error::Error;
 ///
 /// fn main() -> Result<(), Box<dyn Error>> {
@@ -147,7 +147,7 @@ pub mod datetime;
 ///
 /// ```
 /// use chrono::prelude::*;
-/// use dateparser::timezone::parse;
+/// use qsv_dateparser::timezone::parse;
 /// use std::error::Error;
 ///
 /// fn main() -> Result<(), Box<dyn Error>> {
@@ -172,7 +172,7 @@ use chrono::prelude::*;
 /// from this crate.
 ///
 /// ```
-/// use dateparser::DateTimeUtc;
+/// use qsv_dateparser::DateTimeUtc;
 ///
 /// // parsed is DateTimeUTC and parsed.0 is chrono's DateTime<Utc>
 /// match "May 02, 2021 15:51:31 UTC".parse::<DateTimeUtc>() {
@@ -180,6 +180,7 @@ use chrono::prelude::*;
 ///     Err(err) => println!("ERROR from parsing datetime string: {}", err)
 /// }
 /// ```
+
 pub struct DateTimeUtc(pub DateTime<Utc>);
 
 impl std::str::FromStr for DateTimeUtc {
