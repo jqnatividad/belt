@@ -6,6 +6,7 @@ A rust library for parsing date strings in commonly used formats. Parsed date wi
 This is a fork of Rollie Ma's [dateparser](https://github.com/waltzofpearls/belt/tree/main/dateparser), specifically published to support [qsv](https://github.com/jqnatividad/qsv).
 It supports a subset of date formats supported by dateparser, skipping more obscure formats, primarily
 for performance.
+It also adds support for parsing dates in DMY format, with the `parse_with_preference` function.
 
 It will also be the foundation for replacing the chrono crate, with its [long-standing security advisory](https://rustsec.org/advisories/RUSTSEC-2020-0159).
 
