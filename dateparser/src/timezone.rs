@@ -1,11 +1,11 @@
 use anyhow::{anyhow, Result};
 use chrono::offset::FixedOffset;
 
-/// Tries to parse `[-+]\d\d` continued by `\d\d`. Return FixedOffset if possible.
+/// Tries to parse `[-+]\d\d` continued by `\d\d`. Return `FixedOffset` if possible.
 /// It can parse RFC 2822 legacy timezones. If offset cannot be determined, -0000 will be returned.
 ///
 /// The additional `colon` may be used to parse a mandatory or optional `:` between hours and minutes,
-/// and should return a valid FixedOffset or `Err` when parsing fails.
+/// and should return a valid `FixedOffset` or `Err` when parsing fails.
 pub fn parse(s: &str) -> Result<FixedOffset> {
     let offset = if s.contains(':') {
         parse_offset_internal(s, colon_or_space, false)?

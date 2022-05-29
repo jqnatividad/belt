@@ -116,6 +116,37 @@
 //!     assert!(result.is_ok())
 //! }
 //! ```
+//!
+//! ### DMY Format
+//!
+//! It also accepts dates in DMY format with `parse_with_preference`,
+//! and the `prefer_dmy` parameter set to true.
+//!
+//! ```
+//! use qsv_dateparser::parse_with_preference;
+//!
+//! let accepted = vec![
+//!     // dd/mm/yyyy
+//!     "31/12/2020",
+//!     "12/10/2019",
+//!     "03/06/2018",
+//!     "27/06/68",
+//!     // dd/mm/yyyy hh:mm:ss
+//!     "4/8/2014 22:05",
+//!     "04/08/2014 22:05",
+//!     "4/8/14 22:05",
+//!     "04/2/2014 03:00:51",
+//!     "8/8/1965 12:00:00 AM",
+//!     "8/8/1965 01:00:01 PM",
+//!     "8/8/1965 01:00 PM",
+//!     "31/12/22 15:00"
+//! ];
+//!
+//! for date_str in accepted {
+//!     let result = parse_with_preference(date_str, true);
+//!     assert!(result.is_ok());
+//! }
+//! ```
 
 /// Datetime string parser
 ///
@@ -168,7 +199,7 @@ use anyhow::{Error, Result};
 use chrono::prelude::*;
 use once_cell::sync::OnceCell;
 
-/// DateTimeUtc is an alias for `chrono`'s `DateTime<UTC>`. It implements `std::str::FromStr`'s
+/// `DateTimeUtc` is an alias for `chrono`'s `DateTime<UTC>`. It implements `std::str::FromStr`'s
 /// `from_str` method, and it makes `str`'s `parse` method to understand the accepted date formats
 /// from this crate.
 ///
@@ -203,10 +234,15 @@ pub fn parse(input: &str) -> Result<DateTime<Utc>> {
     Parse::new(&Local, Utc::now().time()).parse(input)
 }
 
+/// Similar to [`parse()`], this function takes a datetime string and a boolean `dmy_preference`.
+/// When `dmy_preference` is `true`, it will parse strings using the DMY format. Otherwise, it
+/// parses them using an MDY format.
 #[inline]
 pub fn parse_with_preference(input: &str, dmy_preference: bool) -> Result<DateTime<Utc>> {
     let midnight = MIDNIGHT.get_or_init(|| NaiveTime::from_hms(0, 0, 0));
-    Parse::new(&Utc, *midnight).prefer_dmy(dmy_preference).parse(input)
+    Parse::new(&Utc, *midnight)
+        .prefer_dmy(dmy_preference)
+        .parse(input)
 }
 
 /// Similar to [`parse()`], this function takes a datetime string and a custom [`chrono::TimeZone`],

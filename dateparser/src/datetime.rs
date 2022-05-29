@@ -6,7 +6,12 @@ use regex::Regex;
 macro_rules! regex {
     ($re:literal $(,)?) => {{
         static RE: once_cell::sync::OnceCell<regex::Regex> = once_cell::sync::OnceCell::new();
-        RE.get_or_init(|| regex::RegexBuilder::new($re).unicode(false).build().unwrap() )
+        RE.get_or_init(|| {
+            regex::RegexBuilder::new($re)
+                .unicode(false)
+                .build()
+                .unwrap()
+        })
     }};
 }
 /// Parse struct has methods implemented parsers for accepted formats.
@@ -22,7 +27,7 @@ where
 {
     /// Create a new instance of [`Parse`] with a custom parsing timezone that handles the
     /// datetime string without time offset.
-    pub fn new(tz: &'z Tz2, default_time: NaiveTime) -> Self {
+    pub const fn new(tz: &'z Tz2, default_time: NaiveTime) -> Self {
         Self {
             tz,
             default_time,
@@ -30,7 +35,7 @@ where
         }
     }
 
-    pub fn prefer_dmy(&mut self, yes: bool)-> &Self {
+    pub fn prefer_dmy(&mut self, yes: bool) -> &Self {
         self.prefer_dmy = yes;
         self
     }
