@@ -40,17 +40,31 @@ where
         self
     }
 
+    /// Create a new instance of [`Parse`] with a custom parsing timezone that handles the
+    /// datetime string without time offset, and the date parsing preference.
+    pub const fn new_with_preference(
+        tz: &'z Tz2,
+        default_time: NaiveTime,
+        prefer_dmy: bool,
+    ) -> Self {
+        Self {
+            tz,
+            default_time,
+            prefer_dmy,
+        }
+    }
+
     /// This method tries to parse the input datetime string with a list of accepted formats. See
-    /// more exmaples from [`Parse`], [`crate::parse()`] and [`crate::parse_with_timezone()`].
+    /// more examples from [`Parse`], [`crate::parse()`] and [`crate::parse_with_timezone()`].
     #[inline]
     pub fn parse(&self, input: &str) -> Result<DateTime<Utc>> {
         self.rfc2822(input)
+            .or_else(|| self.slash_mdy_family(input))
+            .or_else(|| self.slash_ymd_family(input))
             .or_else(|| self.ymd_family(input))
             .or_else(|| self.month_ymd(input))
             .or_else(|| self.month_mdy_family(input))
             .or_else(|| self.month_dmy_family(input))
-            .or_else(|| self.slash_mdy_family(input, self.prefer_dmy))
-            .or_else(|| self.slash_ymd_family(input))
             .unwrap_or_else(|| Err(anyhow!("{} did not match any formats.", input)))
     }
 
@@ -96,13 +110,13 @@ where
     }
 
     #[inline]
-    fn slash_mdy_family(&self, input: &str, prefer_dmy: bool) -> Option<Result<DateTime<Utc>>> {
+    fn slash_mdy_family(&self, input: &str) -> Option<Result<DateTime<Utc>>> {
         let re: &Regex = regex! {r"^[0-9]{1,2}/[0-9]{1,2}"
         };
         if !re.is_match(input) {
             return None;
         }
-        if prefer_dmy {
+        if self.prefer_dmy {
             self.slash_dmy_hms(input).or_else(|| self.slash_dmy(input))
         } else {
             self.slash_mdy_hms(input).or_else(|| self.slash_mdy(input))

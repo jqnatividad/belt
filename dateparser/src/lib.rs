@@ -240,9 +240,7 @@ pub fn parse(input: &str) -> Result<DateTime<Utc>> {
 #[inline]
 pub fn parse_with_preference(input: &str, dmy_preference: bool) -> Result<DateTime<Utc>> {
     let midnight = MIDNIGHT.get_or_init(|| NaiveTime::from_hms(0, 0, 0));
-    Parse::new(&Utc, *midnight)
-        .prefer_dmy(dmy_preference)
-        .parse(input)
+    Parse::new_with_preference(&Utc, *midnight, dmy_preference).parse(input)
 }
 
 /// Similar to [`parse()`], this function takes a datetime string and a custom [`chrono::TimeZone`],
