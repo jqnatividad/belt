@@ -582,4 +582,9 @@ mod tests {
             };
         }
     }
+
+    #[test]
+    fn parse_unambiguous_dmy() {
+        assert_eq!(super::parse("31/3/22").unwrap().date(), Utc.ymd(2022, 3, 31));
+    }
 }

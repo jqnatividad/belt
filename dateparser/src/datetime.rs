@@ -117,9 +117,15 @@ where
             return None;
         }
         if self.prefer_dmy {
-            self.slash_dmy_hms(input).or_else(|| self.slash_dmy(input))
+            self.slash_dmy_hms(input)
+                .or_else(|| self.slash_dmy(input))
+                .or_else(|| self.slash_mdy_hms(input))
+                .or_else(|| self.slash_mdy(input))
         } else {
-            self.slash_mdy_hms(input).or_else(|| self.slash_mdy(input))
+            self.slash_mdy_hms(input)
+                .or_else(|| self.slash_mdy(input))
+                .or_else(|| self.slash_dmy_hms(input))
+                .or_else(|| self.slash_dmy(input))
         }
     }
 
