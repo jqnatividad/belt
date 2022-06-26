@@ -586,5 +586,6 @@ mod tests {
     #[test]
     fn parse_unambiguous_dmy() {
         assert_eq!(super::parse("31/3/22").unwrap().date(), Utc.ymd(2022, 3, 31));
+        assert_eq!(super::parse_with_preference("3/31/22", true).unwrap().date(), Utc.ymd(2022, 3, 31));
     }
 }
