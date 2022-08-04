@@ -112,7 +112,7 @@ fn equals(s: &str, pattern: &str) -> bool {
         b'A'..=b'Z' => c + 32,
         _ => c,
     });
-    let mut ys = pattern.as_bytes().iter().cloned();
+    let mut ys = pattern.as_bytes().iter().copied();
     loop {
         match (xs.next(), ys.next()) {
             (None, None) => return true,
