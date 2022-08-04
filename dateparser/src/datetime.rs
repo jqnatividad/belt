@@ -6,11 +6,11 @@ use regex::Regex;
 macro_rules! regex {
     ($re:literal $(,)?) => {{
         static RE: once_cell::sync::OnceCell<regex::Regex> = once_cell::sync::OnceCell::new();
-        RE.get_or_init(|| {
+        RE.get_or_init(|| unsafe {
             regex::RegexBuilder::new($re)
                 .unicode(false)
                 .build()
-                .unwrap()
+                .unwrap_unchecked()
         })
     }};
 }
