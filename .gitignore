@@ -13,3 +13,4 @@
 *.swp
 Cargo.lock
 dateparser/.vscode/launch.json
+.DS_Store
