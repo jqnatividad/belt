@@ -180,7 +180,7 @@ where
         self.tz
             .datetime_from_str(input, "%Y-%m-%d %H:%M:%S")
             .or_else(|_| self.tz.datetime_from_str(input, "%Y-%m-%d %H:%M"))
-            .or_else(|_| self.tz.datetime_from_str(input, "%Y-%m-%d %H:%M:%S.%f"))
+            .or_else(|_| self.tz.datetime_from_str(input, "%Y-%m-%d %H:%M:%S%.f"))
             .or_else(|_| self.tz.datetime_from_str(input, "%Y-%m-%d %I:%M:%S %P"))
             .or_else(|_| self.tz.datetime_from_str(input, "%Y-%m-%d %I:%M %P"))
             .ok()
@@ -212,7 +212,7 @@ where
                 return match timezone::parse(matched_tz.as_str().trim()) {
                     Ok(offset) => parse_from_str(input, "%Y-%m-%d %H:%M:%S %Z")
                         .or_else(|_| parse_from_str(input, "%Y-%m-%d %H:%M %Z"))
-                        .or_else(|_| parse_from_str(input, "%Y-%m-%d %H:%M:%S.%f %Z"))
+                        .or_else(|_| parse_from_str(input, "%Y-%m-%d %H:%M:%S%.f %Z"))
                         .ok()
                         .and_then(|parsed| offset.from_local_datetime(&parsed).single())
                         .map(|datetime| datetime.with_timezone(&Utc))
@@ -409,7 +409,7 @@ where
         self.tz
             .datetime_from_str(&dt, "%d %B %Y %H:%M:%S")
             .or_else(|_| self.tz.datetime_from_str(&dt, "%d %B %Y %H:%M"))
-            .or_else(|_| self.tz.datetime_from_str(&dt, "%d %B %Y %H:%M:%S.%f"))
+            .or_else(|_| self.tz.datetime_from_str(&dt, "%d %B %Y %H:%M:%S%.f"))
             .or_else(|_| self.tz.datetime_from_str(&dt, "%d %B %Y %I:%M:%S %P"))
             .or_else(|_| self.tz.datetime_from_str(&dt, "%d %B %Y %I:%M %P"))
             .ok()
@@ -468,12 +468,12 @@ where
         self.tz
             .datetime_from_str(input, "%m/%d/%y %H:%M:%S")
             .or_else(|_| self.tz.datetime_from_str(input, "%m/%d/%y %H:%M"))
-            .or_else(|_| self.tz.datetime_from_str(input, "%m/%d/%y %H:%M:%S.%f"))
+            .or_else(|_| self.tz.datetime_from_str(input, "%m/%d/%y %H:%M:%S%.f"))
             .or_else(|_| self.tz.datetime_from_str(input, "%m/%d/%y %I:%M:%S %P"))
             .or_else(|_| self.tz.datetime_from_str(input, "%m/%d/%y %I:%M %P"))
             .or_else(|_| self.tz.datetime_from_str(input, "%m/%d/%Y %H:%M:%S"))
             .or_else(|_| self.tz.datetime_from_str(input, "%m/%d/%Y %H:%M"))
-            .or_else(|_| self.tz.datetime_from_str(input, "%m/%d/%Y %H:%M:%S.%f"))
+            .or_else(|_| self.tz.datetime_from_str(input, "%m/%d/%Y %H:%M:%S%.f"))
             .or_else(|_| self.tz.datetime_from_str(input, "%m/%d/%Y %I:%M:%S %P"))
             .or_else(|_| self.tz.datetime_from_str(input, "%m/%d/%Y %I:%M %P"))
             .ok()
@@ -506,12 +506,12 @@ where
         self.tz
             .datetime_from_str(input, "%d/%m/%y %H:%M:%S")
             .or_else(|_| self.tz.datetime_from_str(input, "%d/%m/%y %H:%M"))
-            .or_else(|_| self.tz.datetime_from_str(input, "%d/%m/%y %H:%M:%S.%f"))
+            .or_else(|_| self.tz.datetime_from_str(input, "%d/%m/%y %H:%M:%S%.f"))
             .or_else(|_| self.tz.datetime_from_str(input, "%d/%m/%y %I:%M:%S %P"))
             .or_else(|_| self.tz.datetime_from_str(input, "%d/%m/%y %I:%M %P"))
             .or_else(|_| self.tz.datetime_from_str(input, "%d/%m/%Y %H:%M:%S"))
             .or_else(|_| self.tz.datetime_from_str(input, "%d/%m/%Y %H:%M"))
-            .or_else(|_| self.tz.datetime_from_str(input, "%d/%m/%Y %H:%M:%S.%f"))
+            .or_else(|_| self.tz.datetime_from_str(input, "%d/%m/%Y %H:%M:%S%.f"))
             .or_else(|_| self.tz.datetime_from_str(input, "%d/%m/%Y %I:%M:%S %P"))
             .or_else(|_| self.tz.datetime_from_str(input, "%d/%m/%Y %I:%M %P"))
             .ok()
@@ -590,7 +590,7 @@ where
         self.tz
             .datetime_from_str(input, "%Y/%m/%d %H:%M:%S")
             .or_else(|_| self.tz.datetime_from_str(input, "%Y/%m/%d %H:%M"))
-            .or_else(|_| self.tz.datetime_from_str(input, "%Y/%m/%d %H:%M:%S.%f"))
+            .or_else(|_| self.tz.datetime_from_str(input, "%Y/%m/%d %H:%M:%S%.f"))
             .or_else(|_| self.tz.datetime_from_str(input, "%Y/%m/%d %I:%M:%S %P"))
             .or_else(|_| self.tz.datetime_from_str(input, "%Y/%m/%d %I:%M %P"))
             .ok()
@@ -692,7 +692,7 @@ mod tests {
             ),
             (
                 "2021-04-30 21:14:10.052282",
-                Utc.ymd(2021, 4, 30).and_hms_nano(21, 14, 10, 52282),
+                Utc.ymd(2021, 4, 30).and_hms_micro(21, 14, 10, 52282),
             ),
             (
                 "2014-04-26 05:24:37 PM",
@@ -700,11 +700,11 @@ mod tests {
             ),
             (
                 "2014-04-26 17:24:37.123",
-                Utc.ymd(2014, 4, 26).and_hms_nano(17, 24, 37, 123),
+                Utc.ymd(2014, 4, 26).and_hms_milli(17, 24, 37, 123),
             ),
             (
                 "2014-04-26 17:24:37.3186369",
-                Utc.ymd(2014, 4, 26).and_hms_nano(17, 24, 37, 3186369),
+                Utc.ymd(2014, 4, 26).and_hms_nano(17, 24, 37, 318636900),
             ),
             (
                 "2012-08-03 18:31:59.257000000",
@@ -758,7 +758,7 @@ mod tests {
             ),
             (
                 "2015-09-30 18:48:56.35272715 UTC",
-                Utc.ymd(2015, 9, 30).and_hms_nano(18, 48, 56, 35272715),
+                Utc.ymd(2015, 9, 30).and_hms_nano(18, 48, 56, 352727150),
             ),
         ];
 
@@ -996,7 +996,7 @@ mod tests {
             ("12 Feb 2006 19:17", Utc.ymd(2006, 2, 12).and_hms(19, 17, 0)),
             (
                 "14 May 2019 19:11:40.164",
-                Utc.ymd(2019, 5, 14).and_hms_nano(19, 11, 40, 164),
+                Utc.ymd(2019, 5, 14).and_hms_milli(19, 11, 40, 164),
             ),
         ];
 
@@ -1072,7 +1072,7 @@ mod tests {
             ),
             (
                 "03/19/2012 10:11:59.3186369",
-                Utc.ymd(2012, 3, 19).and_hms_nano(10, 11, 59, 3186369),
+                Utc.ymd(2012, 3, 19).and_hms_nano(10, 11, 59, 318636900),
             ),
         ];
 
@@ -1171,7 +1171,7 @@ mod tests {
             ),
             (
                 "2012/03/19 10:11:59.3186369",
-                Utc.ymd(2012, 3, 19).and_hms_nano(10, 11, 59, 3186369),
+                Utc.ymd(2012, 3, 19).and_hms_nano(10, 11, 59, 318636900),
             ),
         ];
 
