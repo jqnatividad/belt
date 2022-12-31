@@ -140,29 +140,20 @@ where
     }
 
     // unix timestamp
-    // - 1511648546
-    // - 1620021848429
-    // - 1620024872717915000
+    // - 0
+    // - -770172300
+    // - 1671673426.123456789
     #[inline]
     fn unix_timestamp(&self, input: &str) -> Option<Result<DateTime<Utc>>> {
-        let re: &Regex = regex! {r"^[0-9]{10,19}$"};
-        if !re.is_match(input) {
+        let Ok(ts_sec_val) = input.parse::<f64>() else {
             return None;
-        }
+        };
 
-        input
-            .parse::<i64>()
-            .ok()
-            .and_then(|timestamp| {
-                match input.len() {
-                    10 => Some(Utc.timestamp_opt(timestamp, 0).unwrap()),
-                    13 => Some(Utc.timestamp_millis_opt(timestamp).unwrap()),
-                    19 => Some(Utc.timestamp_nanos(timestamp)),
-                    _ => None,
-                }
-                .map(|datetime| datetime.with_timezone(&Utc))
-            })
-            .map(Ok)
+        // convert the timestamp seconds value to nanoseconds
+        let ts_ns_val = ts_sec_val * 1_000_000_000_f64;
+
+        let result = Utc.timestamp_nanos(ts_ns_val as i64).with_timezone(&Utc);
+        Some(result).map(Ok)
     }
 
     // rfc3339
@@ -658,17 +649,20 @@ mod tests {
         let parse = Parse::new(&Utc, Utc::now().time());
 
         let test_cases = vec![
+            ("0", Utc.ymd(1970, 1, 1).and_hms(0, 0, 0)),
             ("0000000000", Utc.ymd(1970, 1, 1).and_hms(0, 0, 0)),
             ("0000000000000", Utc.ymd(1970, 1, 1).and_hms(0, 0, 0)),
             ("0000000000000000000", Utc.ymd(1970, 1, 1).and_hms(0, 0, 0)),
+            ("-770172300", Utc.ymd(1945, 8, 5).and_hms(23, 15, 0)),
+            ("1671673426.123456789", Utc.ymd(2022, 12, 22).and_hms_nano(1, 43, 46, 123456768)),
             ("1511648546", Utc.ymd(2017, 11, 25).and_hms(22, 22, 26)),
             (
-                "1620021848429",
-                Utc.ymd(2021, 5, 3).and_hms_milli(6, 4, 8, 429),
+                "1620036248.420",
+                Utc.ymd(2021, 5, 3).and_hms_milli(10, 4, 8, 420),
             ),
             (
-                "1620024872717915000",
-                Utc.ymd(2021, 5, 3).and_hms_nano(6, 54, 32, 717915000),
+                "1620036248.717915136",
+                Utc.ymd(2021, 5, 3).and_hms_nano(10, 4, 8, 717915136),
             ),
         ];
 
@@ -680,12 +674,10 @@ mod tests {
                 input
             )
         }
-        assert!(parse.unix_timestamp("15116").is_none());
-        assert!(parse.unix_timestamp("15116").is_none());
+        assert!(parse.unix_timestamp("15116").is_some());
         assert!(parse
             .unix_timestamp("16200248727179150001620024872717915000") //DevSkim: ignore DS173237 
-            .is_none()); 
-        assert!(parse.unix_timestamp("not-a-ts").is_none());
+            .is_some()); 
         assert!(parse.unix_timestamp("not-a-ts").is_none());
     }
 
