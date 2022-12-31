@@ -58,7 +58,8 @@ where
     /// more examples from [`Parse`], [`crate::parse()`] and [`crate::parse_with_timezone()`].
     #[inline]
     pub fn parse(&self, input: &str) -> Result<DateTime<Utc>> {
-        self.rfc2822(input)
+        self.unix_timestamp(input)
+            .or_else(|| self.rfc2822(input))
             .or_else(|| self.slash_mdy_family(input))
             .or_else(|| self.slash_ymd_family(input))
             .or_else(|| self.ymd_family(input))
@@ -136,6 +137,32 @@ where
             return None;
         }
         self.slash_ymd_hms(input).or_else(|| self.slash_ymd(input))
+    }
+
+    // unix timestamp
+    // - 1511648546
+    // - 1620021848429
+    // - 1620024872717915000
+    #[inline]
+    fn unix_timestamp(&self, input: &str) -> Option<Result<DateTime<Utc>>> {
+        let re: &Regex = regex! {r"^[0-9]{10,19}$"};
+        if !re.is_match(input) {
+            return None;
+        }
+
+        input
+            .parse::<i64>()
+            .ok()
+            .and_then(|timestamp| {
+                match input.len() {
+                    10 => Some(Utc.timestamp_opt(timestamp, 0).unwrap()),
+                    13 => Some(Utc.timestamp_millis_opt(timestamp).unwrap()),
+                    19 => Some(Utc.timestamp_nanos(timestamp)),
+                    _ => None,
+                }
+                .map(|datetime| datetime.with_timezone(&Utc))
+            })
+            .map(Ok)
     }
 
     // rfc3339
@@ -625,6 +652,42 @@ where
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn unix_timestamp() {
+        let parse = Parse::new(&Utc, Utc::now().time());
+
+        let test_cases = vec![
+            ("0000000000", Utc.ymd(1970, 1, 1).and_hms(0, 0, 0)),
+            ("0000000000000", Utc.ymd(1970, 1, 1).and_hms(0, 0, 0)),
+            ("0000000000000000000", Utc.ymd(1970, 1, 1).and_hms(0, 0, 0)),
+            ("1511648546", Utc.ymd(2017, 11, 25).and_hms(22, 22, 26)),
+            (
+                "1620021848429",
+                Utc.ymd(2021, 5, 3).and_hms_milli(6, 4, 8, 429),
+            ),
+            (
+                "1620024872717915000",
+                Utc.ymd(2021, 5, 3).and_hms_nano(6, 54, 32, 717915000),
+            ),
+        ];
+
+        for &(input, want) in test_cases.iter() {
+            assert_eq!(
+                parse.unix_timestamp(input).unwrap().unwrap(),
+                want,
+                "unix_timestamp/{}",
+                input
+            )
+        }
+        assert!(parse.unix_timestamp("15116").is_none());
+        assert!(parse.unix_timestamp("15116").is_none());
+        assert!(parse
+            .unix_timestamp("16200248727179150001620024872717915000") //DevSkim: ignore DS173237 
+            .is_none()); 
+        assert!(parse.unix_timestamp("not-a-ts").is_none());
+        assert!(parse.unix_timestamp("not-a-ts").is_none());
+    }
 
     #[test]
     fn rfc3339() {
