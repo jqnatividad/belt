@@ -12,6 +12,10 @@ It will also be the foundation for replacing the chrono crate, with its [long-st
 
 ## Accepted date formats
 ```rust
+// unix timestamp
+"1511648546",
+"1620021848429",
+"1620024872717915000",
 // rfc3339
 "2021-05-01T01:17:02.604456Z",
 "2017-11-25T22:34:50Z",
