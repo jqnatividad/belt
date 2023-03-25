@@ -1,3 +1,4 @@
+#![allow(deprecated)]
 //! A rust library for parsing date strings in commonly used formats. Parsed date will be returned
 //! as `chrono`'s `DateTime<Utc>`.
 //!

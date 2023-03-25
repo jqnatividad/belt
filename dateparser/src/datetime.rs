@@ -1,3 +1,4 @@
+#![allow(deprecated)]
 use crate::timezone;
 use anyhow::{anyhow, Result};
 use chrono::prelude::*;
