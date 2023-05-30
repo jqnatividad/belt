@@ -12,7 +12,7 @@ edition     = "2021"
 
 [dependencies]
 anyhow = "1.0"
-chrono = { version = "0.4", default-features = false, features = [
+chrono = { version = "=0.4.24", default-features = false, features = [
     "clock",
     "std",
 ] }
