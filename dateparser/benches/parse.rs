@@ -1,8 +1,8 @@
 use criterion::{criterion_group, criterion_main, BenchmarkId, Criterion};
-use once_cell::sync::OnceCell;
 use qsv_dateparser::parse;
+use std::sync::OnceLock;
 
-static SELECTED: OnceCell<Vec<&'static str>> = OnceCell::new();
+static SELECTED: OnceLock<Vec<&'static str>> = OnceLock::new();
 
 fn bench_parse_all(c: &mut Criterion) {
     SELECTED

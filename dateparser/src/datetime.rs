@@ -6,7 +6,7 @@ use regex::Regex;
 
 macro_rules! regex {
     ($re:literal $(,)?) => {{
-        static RE: once_cell::sync::OnceCell<regex::Regex> = once_cell::sync::OnceCell::new();
+        static RE: std::sync::OnceLock<regex::Regex> = std::sync::OnceLock::new();
         RE.get_or_init(|| unsafe {
             regex::RegexBuilder::new($re)
                 .unicode(false)
@@ -655,7 +655,10 @@ mod tests {
             ("0000000000000", Utc.ymd(1970, 1, 1).and_hms(0, 0, 0)),
             ("0000000000000000000", Utc.ymd(1970, 1, 1).and_hms(0, 0, 0)),
             ("-770172300", Utc.ymd(1945, 8, 5).and_hms(23, 15, 0)),
-            ("1671673426.123456789", Utc.ymd(2022, 12, 22).and_hms_nano(1, 43, 46, 123456768)),
+            (
+                "1671673426.123456789",
+                Utc.ymd(2022, 12, 22).and_hms_nano(1, 43, 46, 123456768),
+            ),
             ("1511648546", Utc.ymd(2017, 11, 25).and_hms(22, 22, 26)),
             (
                 "1620036248.420",
@@ -677,8 +680,8 @@ mod tests {
         }
         assert!(parse.unix_timestamp("15116").is_some());
         assert!(parse
-            .unix_timestamp("16200248727179150001620024872717915000") //DevSkim: ignore DS173237 
-            .is_some()); 
+            .unix_timestamp("16200248727179150001620024872717915000") //DevSkim: ignore DS173237
+            .is_some());
         assert!(parse.unix_timestamp("not-a-ts").is_none());
     }
 
