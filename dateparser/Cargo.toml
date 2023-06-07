@@ -1,14 +1,15 @@
 [package]
-name        = "qsv-dateparser"
-version     = "0.8.2"
-authors     = ["Joel Natividad <joel@datHere.com>"]
-description = "Parse dates in string formats that are commonly used. Optimized for qsv."
-readme      = "README.md"
-homepage    = "https://github.com/jqnatividad/belt/tree/main/dateparser"
-repository  = "https://github.com/jqnatividad/belt/tree/main/dateparser"
-keywords    = ["date", "time", "datetime", "parser", "parse"]
-license     = "MIT"
-edition     = "2021"
+name         = "qsv-dateparser"
+version      = "0.8.2"
+authors      = ["Joel Natividad <joel@datHere.com>"]
+description  = "Parse dates in string formats that are commonly used. Optimized for qsv."
+readme       = "README.md"
+homepage     = "https://github.com/jqnatividad/belt/tree/main/dateparser"
+repository   = "https://github.com/jqnatividad/belt/tree/main/dateparser"
+keywords     = ["date", "time", "datetime", "parser", "parse"]
+license      = "MIT"
+edition      = "2021"
+rust-version = "1.70.0"
 
 [dependencies]
 anyhow = "1.0"
