@@ -16,8 +16,6 @@ chrono = { version = "0.4", default-features = false, features = [
     "clock",
     "std",
 ] }
-once_cell = { version = "1.17", features = ["parking_lot"] }
-parking_lot = { version = "0.12", features = ["hardware-lock-elision"] }
 regex = { version = "1.8", default-features = false, features = [
     "std",
     "perf",
